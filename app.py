@@ -33,11 +33,12 @@ def input_image_setup(uploaded_file):
 def chat_interface(image_data):
     st.session_state.chat_history = st.session_state.get('chat_history', [])
     chat_input = st.text_input("Ask me anything about the medicine you are prescribed by your doctor...", key="chat_input")
+    submit_button = st.button(label="Submit")
 
-    if 'chat_input' in st.session_state and st.session_state.chat_input:
-        user_query = st.session_state.chat_input
+    if submit_button and chat_input:
+        user_query = chat_input
         st.session_state.chat_history.append(f"You: {user_query}")
-        
+
         # Dynamically construct the input prompt based on the user query
         input_prompt = f"""
         Analyze the uploaded image of the medicine and answer the specific question: "{user_query}" Provide information that is precise, relevant, and understandable for non-medical users.
@@ -49,8 +50,8 @@ def chat_interface(image_data):
         # Display chat history
         for chat in st.session_state.chat_history:
             st.text(chat)
-        
-        # Clear the input box for the next query
+
+        # Clear the input box for the next query by resetting the state
         st.session_state.chat_input = ""
 
 # Initializing the Streamlit App (Front end setup)
