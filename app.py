@@ -31,30 +31,36 @@ def input_image_setup(uploaded_file):
 # Chat Functionality
 
 def chat_interface(image_data):
-    st.session_state.chat_history = st.session_state.get('chat_history', [])
-    chat_input = st.text_input("Ask me anything about the medicine you are prescribed by your doctor...", key="chat_input")
-    submit_button = st.button(label="Submit")
-
-    if submit_button and chat_input:
-        user_query = chat_input
-        st.session_state.chat_history.append(f"You: {user_query}")
-
-        # Dynamically construct the input prompt based on the user query
+    # Initialize chat history if it doesn't exist
+    if 'chat_history' not in st.session_state:
+        st.session_state.chat_history = []
+    
+    with st.form(key='chat_form'):
+        chat_input = st.text_input("Ask me anything about the medicine you are prescribed by your doctor...", key="chat_input")
+        submit_button = st.form_submit_button(label='Submit')
+    
+    if submit_button:
+        st.session_state.chat_history.append(f"You: {chat_input}")
+        
+        # Construct the input prompt for the model
         input_prompt = f"""
-        Analyze the uploaded image of the medicine and answer the specific question: "{user_query}" Provide information that is precise, relevant, and understandable for non-medical users.
+        Analyze the uploaded image of the medicine and answer the specific question: "{chat_input}" Provide information that is precise, relevant, and understandable for non-medical users.
         """
 
+        # Get the model response
         response = get_gemini_response(input_prompt, image_data)
+        
+        # Add model response to chat history
         st.session_state.chat_history.append(f"AI Pharmacist: {response}")
-
-        # Display chat history
-        for chat in st.session_state.chat_history:
-            st.text(chat)
-
-        # Clear the input box for the next query by resetting the state
+        
+        # Reset the input box by clearing the session state for the next query
         st.session_state.chat_input = ""
 
-# Initializing the Streamlit App (Front end setup)
+    # Display chat history
+    for chat in st.session_state.chat_history:
+        st.text(chat)
+
+# Initializing the App (Front end setup)
 
 st.set_page_config(page_title="AI Pharmacist", page_icon="💊", layout="centered", initial_sidebar_state="auto")
 
